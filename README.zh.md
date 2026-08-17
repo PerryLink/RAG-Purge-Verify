@@ -24,10 +24,8 @@
   - 元数据检查——按用户 ID 检索
   - Payload 文本检查——在文档内容中搜索 PII
 - 支持 ChromaDB 与 Qdrant
-- 雷达扫描动画与 PASSED / FAILED 结果盖章
+- 雷达扫描动画与 PASSED / FAILED 结果盖章及残留报告
 - 列出可用集合
-
-本工具仅做验证，不执行任何删除操作。
 
 ## 快速开始
 
@@ -50,12 +48,42 @@ rag-verify chroma --collection user_docs --user-id user_123
 # ChromaDB——在文档内容中搜索 PII
 rag-verify chroma --collection chat_history --text "alice@example.com"
 
+# ChromaDB——指定持久化路径
+rag-verify chroma --collection user_docs --path ./chroma_db --user-id user_123
+
 # Qdrant——检查远程服务器
 rag-verify qdrant --collection user_docs --host localhost --port 6333 --user-id user_123
 
 # 列出集合
 rag-verify list-collections chroma
+rag-verify list-collections qdrant --host localhost --port 6333
 ```
+
+### 典型场景
+
+收到 GDPR 删除请求后，先删除用户记录，再确认无任何残留：
+
+```bash
+rag-verify chroma --collection user_embeddings --user-id user_12345
+```
+
+绿色 PASSED 盖章表示未发现残留数据。
+
+检测可能仍残留在文档内容中的 PII：
+
+```bash
+rag-verify qdrant --collection support_tickets --text "customer@example.com"
+```
+
+若发现残留，会显示红色 FAILED 警报并列出详情。
+
+## 注意事项
+
+- **性能** —— 适用于中小规模数据集；大规模数据集可能需要较长时间。
+- **准确性** —— 文本搜索基于简单的字符串匹配，可能产生误报或漏报。
+- **安全性** —— 本工具仅做验证，绝不删除任何数据。
+
+基于 Typer、Rich、chromadb、qdrant-client 与 pydantic 构建。
 
 ## 开发
 
@@ -65,6 +93,11 @@ pytest tests/
 ```
 
 可使用 `docker-compose up -d` 启动本地 Qdrant 测试实例。
+
+## 相关项目
+
+- [dsh-library](https://github.com/PerryLink/dsh-library) —— 本工具已移植进的 DSH 插件
+- [PerryLink](https://github.com/PerryLink) —— PerryLink DSH 插件家族
 
 ## 许可证
 
