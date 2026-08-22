@@ -1,6 +1,7 @@
 <div align="center">
 
 # RAG-Purge-Verify
+[![Gitee](https://img.shields.io/badge/Gitee-mirror-c71d23?logo=gitee)](https://gitee.com/perrylink/rag-purge-verify)
 
 **A GDPR compliance tool that verifies whether user data has been completely removed from a RAG system's vector database.**
 
